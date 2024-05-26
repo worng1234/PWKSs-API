@@ -2,23 +2,23 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ScheduleTeacher;
-use App\Services\MainServices;
+use App\Models\Tcoures;
+// use App\Services\MainServices;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
-class ScheduleTeacherController extends Controller
+class TcouresController extends Controller
 {
-    private MainServices $mainServices;
+    // private MainServices $mainServices;
 
-    public function __construct(MainServices $mainServices)
-    {
-        $this->mainServices = $mainServices;
-    }
+    // public function __construct(MainServices $mainServices)
+    // {
+    //     $this->mainServices = $mainServices;
+    // }
 
     public function getSchedule()
     {
-        $schedule = ScheduleTeacher::all();
+        $schedule = Tcoures::all();
 
         return response()->json($schedule);
     }
@@ -28,10 +28,23 @@ class ScheduleTeacherController extends Controller
         $tId = $request->t_id;
 
         try {
-            $schedule = ScheduleTeacher::where('t_id', $tId)
+            $schedule = Tcoures::where('t_id', $tId)
                 ->where('tc_term', $request->term)
                 ->where('tc_year', $request->year)
                 ->get();
+
+            if(count($schedule) == 0){
+                Tcoures::insert([
+                    't_id' => $tId,
+                    'tc_term' => $request->term,
+                    'tc_year' => $request->year
+                ]);
+
+                $schedule = Tcoures::where('t_id', $tId)
+                    ->where('tc_term', $request->term)
+                    ->where('tc_year', $request->year)
+                    ->get();
+            }
 
             $res = [
                 'code' => 0,
@@ -42,7 +55,7 @@ class ScheduleTeacherController extends Controller
             Log::info($th);
 
             $res = [
-                'code' => 0,
+                'code' => 1,
                 'msg' => 'Success',
                 'result' => []
             ];
@@ -55,25 +68,19 @@ class ScheduleTeacherController extends Controller
     {
         $tId = $request->t_id;
 
-        $schedule = ScheduleTeacher::where('t_id', $tId)
+        $schedule = Tcoures::where('t_id', $tId)
             ->where('tc_term', $request->term)
             ->where('tc_year', $request->year)
             ->get();
 
-        $textSchedule = '';
-
-        if (strlen($request->activity) > 0) {
-            $textSchedule = $request->activity;
-        } else {
-            $textSchedule = $request->code . '_' . $request->name . '_' . $request->class . '_' . $request->room;
-        }
+        $textSchedule = $request->subject;
 
         $checkQuery = 0;
         $res = [];
 
         if (count($schedule) == 1) {
             try {
-                $editSchedule = ScheduleTeacher::where('id', $schedule[0]->id)->update([
+                $editSchedule = Tcoures::where('id', $schedule[0]->id)->update([
                     $request->column => $textSchedule
                 ]);
 
@@ -85,7 +92,7 @@ class ScheduleTeacherController extends Controller
             }
         } else {
             try {
-                $addSchedule = ScheduleTeacher::create([
+                $addSchedule = Tcoures::create([
                     't_id' => $tId,
                     'tc_term' => $request->term,
                     'tc_year' => $request->year,
@@ -119,7 +126,7 @@ class ScheduleTeacherController extends Controller
     {
         $tId = $request->t_id;
 
-        $schedule = ScheduleTeacher::where('t_id', $tId)
+        $schedule = Tcoures::where('t_id', $tId)
             ->where('tc_term', $request->term)
             ->where('tc_year', $request->year)
             ->get();
@@ -128,7 +135,7 @@ class ScheduleTeacherController extends Controller
         $res = [];
 
         try {
-            $editSchedule = ScheduleTeacher::where('id', $schedule[0]->id)->update([
+            $editSchedule = Tcoures::where('id', $schedule[0]->id)->update([
                 $request->column => null
             ]);
 

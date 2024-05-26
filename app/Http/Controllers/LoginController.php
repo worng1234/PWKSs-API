@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Teacher;
+use App\Imports\TeacherImport;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
+use App\MainService;
 
 class LoginController extends Controller
 {
@@ -14,10 +17,13 @@ class LoginController extends Controller
         $res = [
             'code' => 0,
             'result' => [
+                'id' => '',
                 'username' => '',
                 'first_name' => '',
                 'last_name' => '',
-                'roll' => ''
+                'roll' => '',
+                'term' => 0,
+                'year' => 0
             ]
         ];
 
@@ -25,16 +31,21 @@ class LoginController extends Controller
             $user = Teacher::where('username', $request->username)
                 ->where('password', $request->password)
                 ->get();
+            
+            $settings = MainService::getTermAndYear();
 
-            if (count($user) > 1 || count($user) == 0) {
+            if (count($user) > 1 || count($user) == 0 || !$settings) {
                 $res['code'] = 403;
                 return response()->json($res);
             }
 
+            $res['result']['id'] = $user[0]->id;
             $res['result']['username'] = $user[0]->username;
             $res['result']['first_name'] = $user[0]->first_name;
             $res['result']['last_name'] = $user[0]->last_name;
             $res['result']['roll'] = $user[0]->roll;
+            $res['result']['term'] = $settings->term;
+            $res['result']['year'] = $settings->year;
 
             return response()->json($res);
         } catch (\Throwable $th) {
@@ -133,6 +144,46 @@ class LoginController extends Controller
             $res['msg'] = 'Fail';
 
             return response()->json($res);
+        }
+    }
+
+    public function addUserTeacherExcel(Request $request)
+    {
+
+        try {
+            if ($request->hasFile('file')) {
+
+                $exfile = $request->file('file')->extension();
+
+                if ($exfile == 'xlsx' || $exfile == 'csv') {
+
+                    $filename = 'teacher' . '_' . time() . '.' . $exfile;
+                    $request->file('file')->move('add_teacher', $filename);
+                    Excel::import(new TeacherImport, 'add_teacher/' . $filename);
+
+                    return response()->json([
+                        'code' => 0,
+                        'msg' => 'Add Teacher User Success'
+                    ], 200);
+                } else {
+                    return response()->json([
+                        'code' => 401,
+                        'msg' => 'File Not Match'
+                    ], 200);
+                }
+            } else {
+                return response()->json([
+                    'code' => 402,
+                    'msg' => 'Pls Upload File'
+                ], 200);
+            }
+        } catch (\Throwable $th) {
+            Log::info($th);
+
+            return response()->json([
+                'code' => 400,
+                'msg' => 'Add Teacher User Error '
+            ], 200);
         }
     }
 }

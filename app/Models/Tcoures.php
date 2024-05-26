@@ -4,10 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ScheduleTeacher extends Model
+class Tcoures extends Model
 {
     protected $fillable = [
-        't_id',
+        'id',
         'tc_term',
         'tc_year',
 

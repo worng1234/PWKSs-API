@@ -41,13 +41,21 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
         $router->post('/login-teacher', 'LoginController@loginTeacher');
         $router->post('/reset-teacher', 'LoginController@resetPasswordTeacher');
         $router->post('/add-teacher', 'LoginController@addUserTeacher');
+        $router->post('/add-teacher-excel', 'LoginController@addUserTeacherExcel');
     });
     
     //!Prefix Schedule
     $router->group(['prefix' => 'schedule'], function () use ($router) {
-        $router->post('/byId', 'ScheduleTeacherController@getScheduleById');
-        $router->post('/addandedit', 'ScheduleTeacherController@addAndEditSchedule');
-        $router->post('/removeschedule', 'ScheduleTeacherController@removeSchedule');
+        $router->post('/byId', 'TcouresController@getScheduleById');
+        $router->post('/addandedit', 'TcouresController@addAndEditSchedule');
+        $router->post('/removeschedule', 'TcouresController@removeSchedule');
+    });
+
+    //!Prefix Teacher Subject
+    $router->group(['prefix' => 'subject'], function () use ($router) {
+        $router->post('/byTId', 'TeacherSubjectController@getSubject');
+        $router->post('/insert', 'TeacherSubjectController@insertSubject');
+        $router->post('/edit', 'TeacherSubjectController@editSubject');
     });
 });
 
