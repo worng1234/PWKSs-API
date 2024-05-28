@@ -54,8 +54,16 @@ $router->group(['prefix' => 'api/v1'], function () use ($router) {
     //!Prefix Teacher Subject
     $router->group(['prefix' => 'subject'], function () use ($router) {
         $router->post('/byTId', 'TeacherSubjectController@getSubject');
+        $router->post('/byTermAndYear', 'TeacherSubjectController@getSubjectByTermAndYear');
         $router->post('/insert', 'TeacherSubjectController@insertSubject');
         $router->post('/edit', 'TeacherSubjectController@editSubject');
+        $router->post('/remove', 'TeacherSubjectController@removeSubject');
+    });
+
+    //!Prefix Teacher Consult
+    $router->group(['prefix' => 'consult'], function () use ($router) {
+        $router->post('/byTId', 'TeacherConsultController@getConsultByTId');
+        $router->post('/edit', 'TeacherConsultController@editConsultByTid');
     });
 });
 

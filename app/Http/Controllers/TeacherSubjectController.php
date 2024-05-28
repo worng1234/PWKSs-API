@@ -12,7 +12,20 @@ class TeacherSubjectController extends Controller
         try {
             $getDate = TeacherSubject::where('t_id', '=', $request->t_id)
                 ->get();
-            Log:info($getDate);
+
+            return ["code" => 0, "result" => $getDate];
+        } catch (\Throwable $th) {
+            return ["code" => 0, "result" => []];
+        }
+    }
+
+    public function getSubjectByTermAndYear(Request $request){
+        try {
+            $getDate = TeacherSubject::where('t_id', '=', $request->t_id)
+                ->where('term', '=', $request->term)
+                ->where('year', '=', $request->year)
+                ->get();
+
             return ["code" => 0, "result" => $getDate];
         } catch (\Throwable $th) {
             return ["code" => 0, "result" => []];
@@ -65,6 +78,31 @@ class TeacherSubjectController extends Controller
                     'subject_code' => $request->subject_code,
                     'subject_name' => $request->subject_name,
                 ]);
+
+            return ["code" => 0];
+        } catch (\Throwable $th) {
+            Log:info($th);
+            return ["code" => 400];
+        }
+    }
+
+    public function removeSubject(Request $request)
+    {
+        try {
+
+            if(!$request->id){
+                return ["code" => 400];
+            }
+
+            $checkData = TeacherSubject::where('id', '=', $request->id)
+                ->first();
+
+            if (!$checkData) {
+                return ["code" => 404];
+            }
+
+            $delete = TeacherSubject::where('id', '=', $request->id)
+                ->delete();
 
             return ["code" => 0];
         } catch (\Throwable $th) {
